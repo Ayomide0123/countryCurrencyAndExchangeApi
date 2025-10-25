@@ -41,7 +41,7 @@ public class CountryService {
 
 //            Fetching Exchange Rates
             String fetchExchangeRates = restTemplate.getForObject(EXCHANGE_API, String.class);
-            if (fetchExchangeRates == null) throw new IOException("Empty exchange rate esponse");
+            if (fetchExchangeRates == null) throw new IOException("Empty exchange rate response");
 
             JsonNode exchangeRates = objectMapper.readTree(fetchExchangeRates).path("rates");
 
@@ -72,7 +72,7 @@ public class CountryService {
                 }
 
 //                Validate Required Fields
-                if (name == null || population == 0  || currencyCode ==null) {
+                if (name == null || population == 0  || currencyCode == null) {
 //                    Skip invalid entries
                     continue;
                 }
