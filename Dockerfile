@@ -1,46 +1,32 @@
-# ---------- STAGE 1: build ----------
+# Stage 1: Build the application
 FROM maven:3.9.4-eclipse-temurin-21 AS builder
 WORKDIR /workspace
 
-# Copy only what we need to speed up builds
-COPY pom.xml mvnw ./
+# Copy Maven wrapper and settings
+COPY mvnw pom.xml ./
 COPY .mvn .mvn
-# download dependencies (cache)
+
+# Make mvnw executable (this fixes your error)
+RUN chmod +x mvnw
+
+# Download dependencies
 RUN ./mvnw -q -B dependency:go-offline
 
-# copy source and build
-COPY src ./src
+# Copy the source code
+COPY src src
+
+# Build the app
 RUN ./mvnw -q -B package -DskipTests
 
-# ---------- STAGE 2: runtime ----------
-# Use a Debian-based Temurin JDK so apt-get is available
+# Stage 2: Run the application
 FROM eclipse-temurin:21-jdk
-
-# Install native libs needed for Java font rendering / image generation
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-      libfreetype6 \
-      libfreetype6-dev \
-      fontconfig \
-      libxext6 \
-      libxrender1 \
-      libxtst6 \
- && rm -rf /var/lib/apt/lists/*
-
 WORKDIR /app
 
-# Copy jar from builder
+# Copy the built jar from builder stage
 COPY --from=builder /workspace/target/*.jar app.jar
 
-# Create a non-root user (optional but recommended)
-RUN useradd --create-home appuser && chown -R appuser:appuser /app
-USER appuser
-
-# Expose port (Railway provides $PORT env, but expose default)
+# Expose port 8080 (Railway will map it automatically)
 EXPOSE 8080
 
-# Runtime options: pass JVM args if needed
-ENV JAVA_OPTS=""
-
-# Start
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
+# Run the app
+ENTRYPOINT ["java", "-jar", "app.jar"]
