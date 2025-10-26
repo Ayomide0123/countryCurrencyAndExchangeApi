@@ -1,32 +1,30 @@
-# Stage 1: Build the application
 FROM maven:3.9.4-eclipse-temurin-21 AS builder
+
 WORKDIR /workspace
 
-# Copy Maven wrapper and settings
-COPY mvnw pom.xml ./
+COPY pom.xml mvnw ./
 COPY .mvn .mvn
 
-# Make mvnw executable (this fixes your error)
+# 👇 Give permission to run the mvnw script
 RUN chmod +x mvnw
 
-# Download dependencies
+# download dependencies (cache)
 RUN ./mvnw -q -B dependency:go-offline
 
-# Copy the source code
+# copy source and build
 COPY src src
+RUN ./mvnw clean package -DskipTests
 
-# Build the app
-RUN ./mvnw -q -B package -DskipTests
-
-# Stage 2: Run the application
+# Runtime stage
 FROM eclipse-temurin:21-jdk
-WORKDIR /app
 
-# Copy the built jar from builder stage
+# 👇 Install missing dependencies (for fonts, etc.)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libfreetype6 libfreetype6-dev fontconfig libxext6 libxrender1 libxtst6 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
 COPY --from=builder /workspace/target/*.jar app.jar
 
-# Expose port 8080 (Railway will map it automatically)
 EXPOSE 8080
-
-# Run the app
 ENTRYPOINT ["java", "-jar", "app.jar"]
