@@ -86,22 +86,22 @@ public class CountryService {
                     country.setCapital(capital);
                     country.setRegion(region);
                     country.setPopulation(population);
-                    country.setCurrencyCode(currencyCode);
-                    country.setExchangeRate(exchangeRate);
-                    country.setEstimatedGdp(estimatedGdp);
-                    country.setFlagUrl(flag);
-                    country.setLastRefreshedAt(LocalDateTime.now());
+                    country.setCurrency_code(currencyCode);
+                    country.setExchange_rate(exchangeRate);
+                    country.setEstimated_gdp(estimatedGdp);
+                    country.setFlag_url(flag);
+                    country.setLast_refreshed_at(LocalDateTime.now());
                 } else {
                     country = CountryEntity.builder()
                             .name(name)
                             .capital(capital)
                             .region(region)
                             .population(population)
-                            .currencyCode(currencyCode)
-                            .exchangeRate(exchangeRate)
-                            .estimatedGdp(estimatedGdp)
-                            .flagUrl(flag)
-                            .lastRefreshedAt(LocalDateTime.now())
+                            .currency_code(currencyCode)
+                            .exchange_rate(exchangeRate)
+                            .estimated_gdp(estimatedGdp)
+                            .flag_url(flag)
+                            .last_refreshed_at(LocalDateTime.now())
                             .build();
                 }
 
@@ -115,8 +115,8 @@ public class CountryService {
 
 //            Sort by estimated GDP descending
             List<CountryEntity> topFive = allCountries.stream()
-                    .filter(c -> c.getEstimatedGdp() != null)
-                    .sorted((a, b) -> Double.compare(b.getEstimatedGdp(), a.getEstimatedGdp()))
+                    .filter(c -> c.getEstimated_gdp() != null)
+                    .sorted((a, b) -> Double.compare(b.getEstimated_gdp(), a.getEstimated_gdp()))
                     .limit(5)
                     .toList();
 //            Create Image
@@ -144,7 +144,7 @@ public class CountryService {
             y += 25;
 
             for (CountryEntity c : topFive) {
-                g.drawString("- " + c.getName() + " (" + String.format("%,.2f", c.getEstimatedGdp()) + ")", 40, y);
+                g.drawString("- " + c.getName() + " (" + String.format("%,.2f", c.getEstimated_gdp()) + ")", 40, y);
                 y += 20;
             }
 
@@ -182,7 +182,7 @@ public class CountryService {
 
         if (currency != null && !currency.isEmpty()) {
             countries = countries.stream()
-                    .filter(c -> currency.equalsIgnoreCase(c.getCurrencyCode()))
+                    .filter(c -> currency.equalsIgnoreCase(c.getCurrency_code()))
                     .toList();
         }
 
@@ -190,12 +190,12 @@ public class CountryService {
         if (sort != null) {
             switch (sort.toLowerCase()) {
                 case "gdp_asc" -> countries = countries.stream()
-                        .sorted(Comparator.comparing(CountryEntity::getEstimatedGdp,
+                        .sorted(Comparator.comparing(CountryEntity::getEstimated_gdp,
                                 Comparator.nullsLast(Double::compareTo)))
                         .toList();
 
                 case "gdp_desc" -> countries = countries.stream()
-                        .sorted(Comparator.comparing(CountryEntity::getEstimatedGdp,
+                        .sorted(Comparator.comparing(CountryEntity::getEstimated_gdp,
                                 Comparator.nullsLast(Double::compareTo))
                                 .reversed())
                         .toList();
@@ -221,7 +221,7 @@ public class CountryService {
         long totalCountries = countryRepository.count();
 
         LocalDateTime lastRefreshAt = countryRepository.findAll().stream()
-                .map(CountryEntity::getLastRefreshedAt)
+                .map(CountryEntity::getLast_refreshed_at)
                 .filter(Objects::nonNull)
                 .max(LocalDateTime::compareTo)
                 .orElse(null);

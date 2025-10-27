@@ -27,11 +27,11 @@ public class CountryEntity {
     private Long population;
 
     @Column(name = "currency_code")
-    private String currencyCode;
+    private String currency_code;
 
-    private Double exchangeRate;
-    private Double estimatedGdp;
-    private String flagUrl;
+    private Double exchange_rate;
+    private Double estimated_gdp;
+    private String flag_url;
 
-    private LocalDateTime lastRefreshedAt;
+    private LocalDateTime last_refreshed_at;
 }
